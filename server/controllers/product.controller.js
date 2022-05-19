@@ -1,7 +1,6 @@
 const productModel = require("../models/product.model")
-module.exports = {
  // Add product  
- addProduct:async (req, res) => {
+ const addProduct = async (req, res) => {
    try {
     let add_product = new productModel({
       name:req.body.name,
@@ -13,18 +12,18 @@ module.exports = {
    }catch(error){
      res.status(400).json({message:error})  
    }
- },
+ }
  // Get product  
- getProduct:async(req, res) => {
+ const getProduct = async(req, res) => {
    try {
      let product_display = await productModel.find()
      res.json(product_display) 
    }catch(error){
      res.status(400).json({message:error})
   }
- },
+ }
  // Edit product  
- editProduct:async (req, res) => {
+ const editProduct = async (req, res) => {
    try {
      let _id = req.params.id 
      let save_input_data = await productModel.findById(_id)
@@ -32,9 +31,9 @@ module.exports = {
    }catch(error){
      res.status(400).json({message:error})
    }
- },
+ }
  // Update product
- updateProduct:async (req, res) => {
+ const updateProduct = async (req, res) => {
   try {
     let _id = req.params.id
     let update_data = req.body
@@ -44,9 +43,19 @@ module.exports = {
   }catch(error){
     res.status(400).json({message:error})
   }
- },
+ }
+ // Search product
+ const searchProduct = async (req, res) => {
+   try {
+     let {name} = req.query
+     let filter_product = await productModel.find({name:name})
+     res.json(filter_product)
+   }catch(error){
+     res.status(400).json({message:error})
+   }
+ }
  // Delete product
- deleteProduct:async (req, res) => {
+ const deleteProduct = async (req, res) => {
    try {
      let _id = req.params.id
      let deleted_product = await productModel.findByIdAndDelete(_id)
@@ -55,4 +64,12 @@ module.exports = {
      res.status(400).json({message:error})
   }
  }
+
+ module.exports = {
+   addProduct, 
+   getProduct, 
+   editProduct, 
+   updateProduct,
+   searchProduct,
+   deleteProduct
 }

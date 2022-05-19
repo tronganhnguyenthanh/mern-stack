@@ -9,6 +9,8 @@ router_api.get("/product/list", productController.getProduct)
 router_api.get("/product/edit/:id", productController.editProduct)
 // Update product
 router_api.put("/product/update/:id", productController.updateProduct)
+// Search product
+router_api.get("/product/filter", productController.searchProduct)
 // Delete product
 router_api.delete("/product/delete/:id", productController.deleteProduct)
 module.exports = router_api
