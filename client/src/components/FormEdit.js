@@ -1,48 +1,41 @@
-import React, {useState} from "react"
+import React, {useEffect, useState} from "react"
 import {Button, Container, Form} from "react-bootstrap"
 import axios from "axios"
-import {toast, ToastContainer} from "react-toastify"
-import {useNavigate} from "react-router-dom"
-const FormAdd = () => {
+import {useNavigate, useParams} from "react-router-dom"
+const FormEdit = () => {
   const init_data = {
     name:"",
     quantity:"",
     price:""
   }
   const [data, setData] = useState(init_data)
+  const {_id} = useParams()
   const navigate = useNavigate()
   const handleOnChange = (e) => {
     let new_data = {...data}
     new_data[e.target.name] = e.target.value
     setData(new_data)
   }
-  const handleAdd = () => {
-    if(data.name === ""){
-      toast.error("Please enter the name", {position:"top-center"})
-      return false
+  useEffect(() => {
+    getInputProductControl(_id)
+  },[_id])
+  const getInputProductControl = async (_id) => {
+    let url = `http://localhost:1997/api/product/edit/${_id}`
+    let result = await axios.get(url)
+    setData(result.data)
+  }
+  const handleUpdate = async () => {
+    let updated_product = {
+     name:data.name,
+     quantity:data.quantity,
+     price:data.price
     }
-    if(data.quantity === ""){
-      toast.error("Please choose the quantity", {position:"top-center"})
-      return false
-    }
-    if(data.price === ""){
-      toast.error("Please enter the price", {position:"top-center"})
-      return false
-    }else{
-      let product = {
-       name:data.name,
-       quantity:data.quantity,
-       price:data.price
-      }
-      axios.post("http://localhost:1997/api/product/add", product).then(() => {
-       navigate("/product/list")
-       return true
-      }).catch(() => console.error("Failed to load data"))
-    }
+    let update_url = await axios.put(`http://localhost:1997/api/product/update/${_id}`, updated_product)
+    setData(update_url.data)
+    navigate("/product/list")
   }
   return(
    <>
-    <ToastContainer/>
     <Container>
       <h1 className="text-center text-primary">Product App System</h1>
       <Form>
@@ -73,11 +66,11 @@ const FormAdd = () => {
            />
         </Form.Group>
         <Form.Group className="mb-4">
-          <Button onClick={handleAdd}>Submit</Button>
+          <Button onClick={() => handleUpdate(_id)}>Update</Button>
         </Form.Group>
       </Form>
     </Container>
    </>
   )
 }
-export default FormAdd
+export default FormEdit
