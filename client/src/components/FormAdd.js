@@ -1,8 +1,9 @@
 import React, {useState} from "react"
 import {Button, Container, Form} from "react-bootstrap"
-import axios from "axios"
 import {toast, ToastContainer} from "react-toastify"
 import {useNavigate} from "react-router-dom"
+import {useDispatch} from "react-redux"
+import {addProduct} from "../features/product.slice"
 const FormAdd = () => {
   const init_data = {
     name:"",
@@ -10,6 +11,7 @@ const FormAdd = () => {
     price:""
   }
   const [data, setData] = useState(init_data)
+  const dispatch = useDispatch()
   const navigate = useNavigate()
   const handleOnChange = (e) => {
     let new_data = {...data}
@@ -34,10 +36,8 @@ const FormAdd = () => {
        quantity:data.quantity,
        price:data.price
       }
-      axios.post("http://localhost:1997/api/product/add", product).then(() => {
-       navigate("/product/list")
-       return true
-      }).catch(() => console.error("Failed to load data"))
+      dispatch(addProduct(product))
+      navigate("/product/list")
     }
   }
   return(
@@ -66,7 +66,6 @@ const FormAdd = () => {
         <Form.Group className="mb-4">
           <Form.Label>Price</Form.Label>
           <Form.Control
-            type="number" 
             name="price"
             value={data.price.toLocaleString()} 
             onChange={handleOnChange}

@@ -1,29 +1,26 @@
-import axios from "axios"
-import React, {useEffect, useState} from "react"
+import React, {useEffect} from "react"
 import {Button, Container, Table} from "react-bootstrap"
+import {useDispatch, useSelector} from "react-redux"
 import {useNavigate} from "react-router-dom"
 import {toast, ToastContainer} from "react-toastify"
+import {deleteProductById, getProduct} from "../features/product.slice"
 const ListProduct = () => {
   const navigate = useNavigate()
-  const [prod_list, setProdList] = useState([])
+  const product = useSelector(state => state.product.products)
+  const dispatch = useDispatch()
   useEffect(() => {
-   handleGetProductList()
-  },[])
-  const handleGetProductList = () => {
-   axios.get("http://localhost:1997/api/product/list").then((res) => {
-     setProdList(res.data)
-   })
-  }
+   dispatch(getProduct())
+  },[dispatch])
   const goBack = () => {
     navigate("/")
   }
   const editProduct = (_id) => {
-    navigate(`/product/edit/${_id}`)
+    navigate(`/product/update/${_id}`)
   }
-  const handleDelete = async (_id) => {
-    await axios.delete(`http://localhost:1997/api/product/delete/${_id}`)
+  const handleDelete = (_id) => {
+    dispatch(deleteProductById(_id))
     toast.success("Product deleted successfully", {position:"top-center"})
-    handleGetProductList()
+    dispatch(getProduct())
   }
   return (
    <>
@@ -41,7 +38,7 @@ const ListProduct = () => {
            </tr>
         </thead>
         <tbody>
-          {prod_list.map((i, index) => {
+          {product?.length > 0 && product?.map((i, index) => {
             return(
              <tr key={index}>
                <td className="text-center align-middle">{i.name}</td>
@@ -50,7 +47,7 @@ const ListProduct = () => {
                <td className="text-center align-middle">{(i.quantity * i.price).toLocaleString()}</td>
                <td className="d-flex justify-content-center">
                  <Button className="btn btn-info text-white" onClick={() => editProduct(i._id)}>Edit</Button>
-                 <Button className="btn btn-danger text-white" style={{marginLeft:"5%"}} onClick={() => handleDelete(i._id)}>Delete</Button>
+                 <Button className="btn btn-danger text-white" onClick={() => handleDelete(i._id)}>Delete</Button>
                </td>
              </tr>
             )

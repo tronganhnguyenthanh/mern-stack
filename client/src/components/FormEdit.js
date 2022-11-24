@@ -1,7 +1,9 @@
 import React, {useEffect, useState} from "react"
 import {Button, Container, Form} from "react-bootstrap"
-import axios from "axios"
-import {useNavigate, useParams} from "react-router-dom"
+import {useParams} from "react-router-dom"
+import {useDispatch} from "react-redux"
+import {getProductById, updateProduct} from "../features/product.slice"
+import {toast, ToastContainer} from "react-toastify"
 const FormEdit = () => {
   const init_data = {
     name:"",
@@ -10,32 +12,35 @@ const FormEdit = () => {
   }
   const [data, setData] = useState(init_data)
   const {_id} = useParams()
-  const navigate = useNavigate()
+  // const navigate = useNavigate()
+  const dispatch = useDispatch()
   const handleOnChange = (e) => {
-    let new_data = {...data}
-    new_data[e.target.name] = e.target.value
-    setData(new_data)
+    // let new_data = {...data}
+    // new_data[e.target.name] = e.target.value
+    setData({...data, [e.target.name]:e.target.value})
   }
   useEffect(() => {
     getInputProductControl(_id)
   },[_id])
   const getInputProductControl = async (_id) => {
-    let url = `http://localhost:1997/api/product/edit/${_id}`
-    let result = await axios.get(url)
-    setData(result.data)
+    let res = await dispatch(getProductById(_id))
+    setData(res?.payload)
   }
-  const handleUpdate = async () => {
-    let updated_product = {
-     name:data.name,
-     quantity:data.quantity,
-     price:data.price
+  const handleUpdate = async (_id) => {
+     let product = {
+      name:data.name,
+      quantity:data.quantity,
+      price:data.price
     }
-    let update_url = await axios.put(`http://localhost:1997/api/product/update/${_id}`, updated_product)
-    setData(update_url.data)
-    navigate("/product/list")
+    // console.log("product", product)
+    let res = await dispatch(updateProduct(_id, product))
+    console.log("res", res)
+    // toast.success("Product updated successfully", {position:"top-center"})
+    // navigate("/product/list")
   }
   return(
    <>
+    <ToastContainer/>
     <Container>
       <h1 className="text-center text-primary">Product App System</h1>
       <Form>
@@ -58,10 +63,9 @@ const FormEdit = () => {
         </Form.Group>
         <Form.Group className="mb-4">
           <Form.Label>Price</Form.Label>
-          <Form.Control
-            type="number" 
+          <Form.Control 
             name="price"
-            value={data.price.toLocaleString()} 
+            value={data.price} 
             onChange={handleOnChange}
            />
         </Form.Group>
